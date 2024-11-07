@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jacobian Visualizer</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 20px 10px 20px;
+            gap: 20px;
+        }
+
+        .plot-container {
+            width: 45%;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .plot {
+            width: 100%;
+        }
+
+        .plot-info {
+            width: 100%;
+            background-color: #fff;
+            text-align: center;
+            font-weight: 700;
+            color: #007BFF;
+        }
+
+     .plot-info2 {
+         width: 100%;
+         background-color: #fff;
+         padding: 10px;
+         padding-top: 30px;
+         border-radius: 15px;
+         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+         text-align: center;
+         font-weight: 700;
+         color: #007BFF;
+     }
+
+
+        .input-container {
+            display: grid;
+            gap: 15px;
+            grid-template-columns: repeat(2, 1fr);
+            background-color: #fff;
+            padding: 20px;
+            margin: 0px 20px 10px 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            border-color: #007BFF;
+            outline: none;
+        }
+
+        h1 {
+            text-align: center;
+            color: #007BFF;
+            margin-top: 20px;
+        }
+
+        p {
+            margin: 0 20px;
+            padding: 0 0 20px;
+        }
+
+        .info {
+            background-color: #fff;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 15px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .info p {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Jacobian Visualizer</h1>
+
+    <p>Input two functions (in Javascript syntax). Specify an input region in terms of an x and y coordinate and x and y deltas. The input and output regions will be shown. Start with linear transforms. What do you observe? Now consider some nonlinear transforms -- note that for nonlinear transforms, the ratio of the areas can depend on the (x,y) coordinates. Set the delta values to something very small. What do you observe about the output areas? Compare the ratio of the input and output areas to the Jacobian when the delta values are small.</p>
+
+    <p>Note that if no input box is selected, the arrow keys will change the offsets by multiples of 10 instead of scrolling the page.</p>
+
+    <div class="input-container">
+        <div class="input-group">
+            <label for="g">Function g(x, y):</label>
+            <input type="text" id="g" value="x + y">
+        </div>
+        <div class="input-group">
+            <label for="h">Function h(x, y):</label>
+            <input type="text" id="h" value="3*x + 0.5*y">
+        </div>
+        <div class="input-group">
+            <label for="x">Location x:</label>
+            <input type="number" id="x" value="1">
+        </div>
+        <div class="input-group">
+            <label for="y">Location y:</label>
+            <input type="number" id="y" value="1">
+        </div>
+        <div class="input-group">
+            <label for="deltaX">Offset deltaX:</label>
+            <input type="number" id="deltaX" value="1">
+        </div>
+        <div class="input-group">
+            <label for="deltaY">Offset deltaY:</label>
+            <input type="number" id="deltaY" value="1">
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="plot-container">
+            <div class="plot" id="original"></div>
+            <div class="plot-info">
+                Input area: <span id="input-area"></span>
+            </div>
+        </div>
+        <div class="plot-container">
+            <div class="plot" id="transformed"></div>
+            <div class="plot-info">
+                Estimate of output area: <span id="output-area"></span><br>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="container">
+    <div class="plot-info2">
+        <p>Output area/Input area: <span id="area-ratio"></span></p>
+    </div>
+    </div>
+
+
+    <script>
+    document.querySelectorAll('input').forEach(input => {
+        input.addEventListener('input', updatePlots);
+    });
+    document.addEventListener('keydown', function(event) {
+        // Check if the active element is an input, if so, do nothing.
+        if (document.activeElement.tagName.toLowerCase() === 'input' ||
+            document.activeElement.tagName.toLowerCase() === 'textarea' ||
+            document.activeElement.tagName.toLowerCase() === 'select') {
+            return;
+        }
+
+        const deltaXInput = document.getElementById('deltaX');
+        const deltaYInput = document.getElementById('deltaY');
+        let deltaXValue = parseFloat(deltaXInput.value);
+        let deltaYValue = parseFloat(deltaYInput.value);
+
+        if (event.key === 'ArrowUp' || event.keyCode === 38) {
+            deltaXValue *= 10;
+            deltaYValue *= 10;
+            event.preventDefault();
+        } else if (event.key === 'ArrowDown' || event.keyCode === 40) {
+            deltaXValue /= 10;
+            deltaYValue /= 10;
+            event.preventDefault();
+        }
+
+         deltaXInput.value = deltaXValue;
+         deltaYInput.value = deltaYValue;
+         updatePlots();
+     });
+
+
+    function evaluateFunctions(g, h, x, y) {
+        try {
+            const gx = new Function('x', 'y', `return ${g}`);
+            const hy = new Function('x', 'y', `return ${h}`);
+            return [gx(x, y), hy(x, y)];
+        } catch (error) {
+            console.error('Error evaluating functions:', error);
+            return [NaN, NaN];
+        }
+    }
+
+    function sampleEdge(x1, y1, x2, y2, numPoints) {
+        const points = [];
+        for (let i = 0; i <= numPoints; i++) {
+            const t = i / numPoints;
+            points.push([x1 + t * (x2 - x1), y1 + t * (y2 - y1)]);
+        }
+        return points;
+    }
+
+    function polygonArea(vertices) {
+         const n = vertices.length;
+         if (n < 3) return 0; // A polygon must have at least 3 vertices
+
+         let area = 0;
+
+         // Calculate the area using the Shoelace formula
+         for (let i = 0; i < n; i++) {
+             let j = (i + 1) % n; // Wrap around to the first vertex for the last edge
+             area += vertices[i][0] * vertices[j][1];
+             area -= vertices[j][0] * vertices[i][1];
+         }
+
+         return Math.abs(area) / 2;
+    }
+
+    function polygonAreaEdges(edges) {
+         var vertices = [];
+         for (i=0; i < edges.length; i++) {
+             vertices = vertices.concat(edges[i]);
+         }
+
+         const n = vertices.length;
+         if (n < 3) return 0; // A polygon must have at least 3 vertices
+
+         let area = 0;
+
+         // Calculate the area using the Shoelace formula
+         for (let i = 0; i < n; i++) {
+             let j = (i + 1) % n; // Wrap around to the first vertex for the last edge
+             area += vertices[i][0] * vertices[j][1];
+             area -= vertices[j][0] * vertices[i][1];
+         }
+
+         return Math.abs(area) / 2;
+     }
+
+
+    function updatePlots() {
+        const g = document.getElementById('g').value;
+        const h = document.getElementById('h').value;
+        const x = parseFloat(document.getElementById('x').value);
+        const y = parseFloat(document.getElementById('y').value);
+        const deltaX = parseFloat(document.getElementById('deltaX').value);
+        const deltaY = parseFloat(document.getElementById('deltaY').value);
+        const numPoints = 100;  // Number of sample points per edge
+
+        // Define the rectangle vertices
+        const rectEdges = [
+            sampleEdge(x, y, x + deltaX, y, numPoints),
+            sampleEdge(x + deltaX, y, x + deltaX, y + deltaY, numPoints),
+            sampleEdge(x + deltaX, y + deltaY, x, y + deltaY, numPoints),
+            sampleEdge(x, y + deltaY, x, y, numPoints)
+        ];
+
+        // Print the areas
+         const inputArea = polygonArea([ [x,y], [x,y + deltaY], [x+deltaX, y+deltaY], [x+deltaX, y]]);
+         document.getElementById("input-area").textContent  = inputArea.toPrecision(3);
+
+        // Flatten the array of edges
+        const rectPoints = rectEdges.flat();
+
+        // Apply transformation
+        const transformedPoints = rectPoints.map(([xi, yi]) => evaluateFunctions(g, h, xi, yi));
+
+         const outputArea = polygonArea(transformedPoints);
+        document.getElementById("output-area").textContent  = outputArea.toPrecision(3);
+
+        document.getElementById("area-ratio").textContent  = (outputArea/inputArea).toPrecision(3);
+
+        // Define the edges colors
+        const colors = ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0'];
+
+        // Plot the original rectangle
+        const originalPlot = {
+            data: rectEdges.map((edge, i) => ({
+                x: edge.map(p => p[0]),
+                y: edge.map(p => p[1]),
+                type: 'scatter',
+                mode: 'lines+markers',
+                marker: { color: colors[i] },
+                line: { color: colors[i] }
+            })),
+            layout: {
+                title: 'Original Rectangle',
+                xaxis: { title: 'x' },
+                yaxis: { title: 'y', scaleanchor: 'x' },
+                hovermode: 'closest',
+                showlegend: false // Set to false to hide the legend
+            }
+        };
+
+         // Plot the transformed shape
+         const transformedPlot = {
+             data: rectEdges.map((edge, i) => {
+                 const transformedEdge = edge.map(([xi, yi]) => evaluateFunctions(g, h, xi, yi));
+                 return {
+                     x: transformedEdge.map(p => p[0]),
+                     y: transformedEdge.map(p => p[1]),
+                     type: 'scatter',
+                     mode: 'lines+markers',
+                     marker: { color: colors[i] },
+                     line: { color: colors[i] }
+                 }
+             }),
+             layout: {
+                 title: 'Transformed Shape',
+                 xaxis: { title: 'g(x, y)' },
+                 yaxis: { title: 'h(x, y)', scaleanchor: 'x' },
+                 hovermode: 'closest',
+                 showlegend: false // Set to false to hide the legend
+            }
+        };
+
+        Plotly.newPlot('original', originalPlot.data, originalPlot.layout);
+        Plotly.newPlot('transformed', transformedPlot.data, transformedPlot.layout);
+
+        // Add hover event listeners to link the plots
+        const originalPlotElement = document.getElementById('original');
+        const transformedPlotElement = document.getElementById('transformed');
+
+        originalPlotElement.on('plotly_hover', function(data) {
+            const pointIndex = data.points[0].pointIndex;
+            Plotly.Fx.hover('transformed', [
+                { curveNumber: data.points[0].curveNumber, pointIndex: pointIndex }
+            ]);
+        });
+
+        transformedPlotElement.on('plotly_hover', function(data) {
+            const pointIndex = data.points[0].pointIndex;
+            Plotly.Fx.hover('original', [
+                { curveNumber: data.points[0].curveNumber, pointIndex: pointIndex }
+            ]);
+        });
+
+        originalPlotElement.on('plotly_unhover', function(data) {
+            Plotly.Fx.unhover('transformed');
+        });
+
+        transformedPlotElement.on('plotly_unhover', function(data) {
+            Plotly.Fx.unhover('original');
+        });
+    }
+
+    updatePlots();  // Initial plot
+    </script>
+
+</body>
+</html>
