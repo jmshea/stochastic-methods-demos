@@ -176,19 +176,21 @@
             const grid_opacity = 0.3
             const grid_spacing = 0.5;
             const grid_lines = [];
-            for (let x = -3; x <= 3; x += grid_spacing) {
+            const grid_size = 4
+            const plot_size = 3
+            for (let x = -grid_size; x <= grid_size; x += grid_spacing) {
                 grid_lines.push({
-                    x_start: x, y_start: -3,
-                    x_end: x, y_end: 3,
+                    x_start: x, y_start: -plot_size*Math.sqrt(1+Math.cos(theta)**2),
+                    x_end: x, y_end: plot_size*Math.sqrt(1+Math.cos(theta)**2),
                     color: x === 0 ? 'orange' : 'white',
                     width: x === 0 ? 2 : 1,
                     opacity: x === 0 ? 1: grid_opacity
                 });
             }
-            for (let y = -3; y <= 3; y += grid_spacing) {
+            for (let y = -grid_size; y <= grid_size; y += grid_spacing) {
                 grid_lines.push({
-                    x_start: -3, y_start: y,
-                    x_end: 3, y_end: y,
+                    x_start: -plot_size*Math.sqrt(1+Math.sin(theta)**2), y_start: y,
+                    x_end: plot_size*Math.sqrt(1+Math.sin(theta)**2), y_end: y,
                     color: y === 0 ? 'blue' : 'white',
                     width: y === 0 ? 2 : 1,
                     opacity: y === 0 ? 1: grid_opacity
