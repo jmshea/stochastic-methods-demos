@@ -173,18 +173,25 @@
             }
 
             // Define the grid with a defined grid spacing
+            const grid_opacity = 0.3
             const grid_spacing = 0.5;
             const grid_lines = [];
             for (let x = -3; x <= 3; x += grid_spacing) {
                 grid_lines.push({
                     x_start: x, y_start: -3,
                     x_end: x, y_end: 3,
+                    color: x === 0 ? 'orange' : 'white',
+                    width: x === 0 ? 2 : 1,
+                    opacity: x === 0 ? 1: grid_opacity
                 });
             }
             for (let y = -3; y <= 3; y += grid_spacing) {
                 grid_lines.push({
                     x_start: -3, y_start: y,
                     x_end: 3, y_end: y,
+                    color: y === 0 ? 'blue' : 'white',
+                    width: y === 0 ? 2 : 1,
+                    opacity: y === 0 ? 1: grid_opacity
                 });
             }
 
@@ -205,9 +212,10 @@
                     y: [start[1], end[1]],
                     type: 'scatter',
                     mode: 'lines',
+                    opacity: line.opacity,
                     line: {
-                        color: 'black',
-                        width: 1,
+                        color: line.color,
+                        width: line.width,
                     },
                     showlegend: false,
                 });
@@ -266,10 +274,10 @@
             }];
 
             const layout1 = {
-                title: { text: 'Original density with grid at angle θ', x: 0.5 },
+                title: { text: 'Original density with grid at angle θ', x: 0.5, pad: { t: 20 } },
                 margin: { l: 40, r: 40, b: 40, t: 80 },
-                xaxis: { range: [-3, 3] },
-                yaxis: { range: [-3, 3] },
+                xaxis: { range: [-3, 3], scaleanchor: 'y', scaleratio: 1 },
+                yaxis: { range: [-3, 3], scaleanchor: 'x', scaleratio: 1 },
                 autosize: true,
                 responsive: true,
                 useResizeHandler: true,
@@ -279,8 +287,8 @@
             const layout2 = {
                 title: { text: 'Density rotated by -θ', x: 0.5, pad: { t: 20 } },
                 margin: { l: 40, r: 40, b: 40, t: 80 },
-                xaxis: { range: [-3, 3] },
-                yaxis: { range: [-3, 3] },
+                xaxis: { range: [-3, 3], scaleanchor: 'y', scaleratio: 1 },
+                yaxis: { range: [-3, 3], scaleanchor: 'x', scaleratio: 1 },
                 autosize: true,
                 responsive: true,
                 useResizeHandler: true,
