@@ -265,8 +265,9 @@
                 type: 'heatmap'
             }];
 
-            const layout = {
-                margin: { l: 40, r: 40, b: 40, t: 40 },
+            const layout1 = {
+                title: { text: 'Original density with grid at angle θ', x: 0.5 },
+                margin: { l: 40, r: 40, b: 40, t: 80 },
                 xaxis: { range: [-3, 3] },
                 yaxis: { range: [-3, 3] },
                 autosize: true,
@@ -275,8 +276,19 @@
                 uirevision: true,
             };
 
-            Plotly.react('plot_heatmap1', data_heatmap1, layout);
-            Plotly.react('plot_heatmap2', data_rotated_heatmap2, layout);
+            const layout2 = {
+                title: { text: 'Density rotated by -θ', x: 0.5, pad: { t: 20 } },
+                margin: { l: 40, r: 40, b: 40, t: 80 },
+                xaxis: { range: [-3, 3] },
+                yaxis: { range: [-3, 3] },
+                autosize: true,
+                responsive: true,
+                useResizeHandler: true,
+                uirevision: true,
+            };
+
+            Plotly.react('plot_heatmap1', data_heatmap1, layout1);
+            Plotly.react('plot_heatmap2', data_rotated_heatmap2, layout2);
         }
 
         window.onload = updatePlots;
