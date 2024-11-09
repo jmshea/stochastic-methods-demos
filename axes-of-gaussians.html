@@ -1,307 +1,352 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Major Axis of Bivariate Gaussian Density</title>
-    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/numeric/1.2.6/numeric.min.js"></script>
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        .header {
-            text-align: center;
-            padding: 20px;
-        }
-        .controls {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-        }
-        .control-group {
-            margin: 10px;
-            padding: 10px;
-            background-color: #ffffff;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        .control-group label {
-            display: block;
-            margin-bottom: 5px;
-        }
-        .control-group input[type="range"] {
-            width: 200px;
-        }
-        .plots {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        @media screen and (max-width:1199px) {
-            .plots {
-                display: grid;
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-        }
-        @media screen and (min-width:1200px) {
-            .plots {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 20px;
-            }
-        }
-        .plot {
-            width: 100%;
-            height: 100%;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>Major Axis of Bivariate Gaussian Density</h1>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Major Axis of Bivariate Gaussian Density</title>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/numeric/1.2.6/numeric.min.js"></script>
+        <style>
+         body {
+             font-family: 'Arial', sans-serif;
+             background-color: #f4f4f9;
+             margin: 0;
+             padding: 0;
+         }
+         .container {
+             max-width: 1200px;
+             margin: 0 auto;
+             padding: 20px;
+         }
+         .header {
+             text-align: center;
+             padding: 10px;
+         }
+         .controls {
+             display: flex;
+             justify-content: center;
+             flex-wrap: wrap;
+             margin-bottom: 20px;
+         }
+         .control-group {
+             margin: 10px;
+             padding: 10px;
+             background-color: #ffffff;
+             border: 1px solid #ddd;
+             border-radius: 5px;
+             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+         }
+         .control-group label {
+             display: block;
+             margin-bottom: 5px;
+         }
+         .control-group input[type="range"] {
+             width: 200px;
+         }
+         .plots {
+             display: grid;
+             grid-template-columns: 1fr 1fr;
+             gap: 20px;
+         }
+         .plot {
+             width: 100%;
+             height: 100%;
+         }
+         .theta-display {
+             display: none;
+             text-align: center;
+             font-size: 1.2em;
+             margin: 20px 0;
+         }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>Major Axis of Bivariate Gaussian Density</h1>
+            </div>
+
+            <div style="font-size:14pt;text-align:center; margin:0 20px 40px 20px;">
+                <p style="width:80%; margin-left:10%;"><b>This demonstration shows a heatmap of a bivariate Gaussian (Normal) density with zero means and allows you to see how the distribution would change if it were projected onto a rotated set of axes.</b></p>
+            </div>
+            <div style="margin:0 20px 20px 20px;">
+                <p>The graph on the left shows the distribution overlaid with a set of axes that are rotatable by clicking and dragging in the graph. The graph also shows a grid that is aligned with the axes to help make the overall rotation of the coordinate system clearer.</p>
+                <p>The graph on the right shows how the distribution would look if plotted on the rotated axes; equivalently, this is the same as rotating the distribution by the opposite amount that the grid is rotated</p>
+
+
+                <ol>
+                    <li> Set the parameters of the distribution using the sliders.</li>
+                    <li> Click and drag on the left plot to change the angle of the overlaid axes. </li>
+            </div>
+
+            <div class="controls">
+                <div class="control-group">
+                    <label for="std_x">Standard Deviation of X: <span id="std_x_val">1</span></label>
+                    <input type="range" id="std_x" min="0.01" max="2" step="0.01" value="1">
+                </div>
+                <div class="control-group">
+                    <label for="std_y">Standard Deviation of Y: <span id="std_y_val">1</span></label>
+                    <input type="range" id="std_y" min="0.01" max="2" step="0.01" value="1">
+                </div>
+                <div class="control-group">
+                    <label for="rho">Correlation Coefficient: <span id="rho_val">0</span></label>
+                    <input type="range" id="rho" min="-0.99" max="0.99" step="0.01" value="0">
+                </div>
+            </div>
+            <div class="theta-display">
+                Rotation Angle (θ): <span id="theta_val">0</span> radians
+            </div>
+            <div class="plots">
+                <div id="plot_heatmap1" class="plot"></div>
+                <div id="plot_heatmap2" class="plot"></div>
+            </div>
         </div>
 
-        <div style="margin:0 20px 20px 20px;">
-            <!-- This demonstration shows a heatmap of a bivariate Gaussian (Normal) density with zero means. The standard deviations, correlation coefficient, and grid rotation angle for the random variables can be adjusted by moving the sliders.  -->
+        <H3 style="margin-left:100px;">Why do we care?</H3>
+        <div style="margin-left:110px;max-width:800px;">
+           <p> If we have correlated pairs of Gaussian random variables, a
+        transformation that results in the ellipses of equal probability density
+               aligning with the <i>x</i> and <i>y</i> axes will make the variables uncorrelated
+               (and hence independent).</p>
+
+            <p>In fact, this basic idea can be extended to
+        arbitrary distributions with random vectors of any size; we can always
+        find a linear transformation that can transform a vector of correlated
+                random variables into uncorrelated random variables.</p>
         </div>
 
-        <div class="controls">
-            <div class="control-group">
-                <label for="std_x">Standard Deviation of X: <span id="std_x_val">1</span></label>
-                <input type="range" id="std_x" min="0.01" max="2" step="0.01" value="1">
-            </div>
-            <div class="control-group">
-                <label for="std_y">Standard Deviation of Y: <span id="std_y_val">1</span></label>
-                <input type="range" id="std_y" min="0.01" max="2" step="0.01" value="1">
-            </div>
-            <div class="control-group">
-                <label for="rho">Correlation Coefficient: <span id="rho_val">0</span></label>
-                <input type="range" id="rho" min="-0.99" max="0.99" step="0.01" value="0">
-            </div>
-            <div class="control-group">
-                <label for="theta">Rotation Angle (θ): <span id="theta_val">0</span></label>
-                <input type="range" id="theta" min="-3.14159265" max="3.14159265" step="0.01" value="0">
-            </div>
-        </div>
+        <script>
+         const std_x_elem = document.getElementById('std_x');
+         const std_y_elem = document.getElementById('std_y');
+         const rho_elem = document.getElementById('rho');
+         const theta_val_elem = document.getElementById('theta_val');
+         
+         const std_x_val_elem = document.getElementById('std_x_val');
+         const std_y_val_elem = document.getElementById('std_y_val');
+         const rho_val_elem = document.getElementById('rho_val');
+         
+         std_x_elem.oninput = () => { std_x_val_elem.textContent = std_x_elem.value; updatePlots(); };
+         std_y_elem.oninput = () => { std_y_val_elem.textContent = std_y_elem.value; updatePlots(); };
+         rho_elem.oninput = () => { rho_val_elem.textContent = rho_elem.value; updatePlots(); };
 
-        <div class="plots">
-            <div id="plot_heatmap1" class="plot"></div>
-            <div id="plot_heatmap2" class="plot"></div>
-        </div>
-    </div>
+         let theta = 0;
+         let isDragging = false;
+         let startClientX;
 
-    <H3 style="margin-left:100px;">Some Things to Try</H3>
-    <div style="margin-left:110px;max-width:800px;">
-        <!-- 
-        <ol>
-            <li style="margin-top:1em;"> Start with the default variances of 1 and note the effect of changing the correlation coefficient.  What are the possible angles of the major axis of the ellipses you create?</li>
-            <li style="margin-top:1em;"> Now set the correlation coefficient to a value close to +1.  Adjust the standard deviations for the two random variables.  What are the possible angles of the major axis of the ellipses you create?</li>
-            <li style="margin-top:1em;"> Now set the correlation coefficient to a value close to -1.  Then adjust the standard deviations for the two random variables.  What are the possible angles of the major axis of the ellipses you create?</li>
-        </ol>
-        -->
-    </div>
+         function updatePlots() {
+             theta_val_elem.textContent = theta.toFixed(2);
+             
+             const std_x = parseFloat(std_x_elem.value);
+             const std_y = parseFloat(std_y_elem.value);
+             const rho = parseFloat(rho_elem.value);
 
-    <script>
-        const std_x_elem = document.getElementById('std_x');
-        const std_y_elem = document.getElementById('std_y');
-        const rho_elem = document.getElementById('rho');
-        const theta_elem = document.getElementById('theta');
-        
-        const std_x_val_elem = document.getElementById('std_x_val');
-        const std_y_val_elem = document.getElementById('std_y_val');
-        const rho_val_elem = document.getElementById('rho_val');
-        const theta_val_elem = document.getElementById('theta_val');
-        
-        std_x_elem.oninput = () => { std_x_val_elem.textContent = std_x_elem.value; updatePlots(); };
-        std_y_elem.oninput = () => { std_y_val_elem.textContent = std_y_elem.value; updatePlots(); };
-        rho_elem.oninput = () => { rho_val_elem.textContent = rho_elem.value; updatePlots(); };
-        theta_elem.oninput = () => { theta_val_elem.textContent = theta_elem.value; updatePlots(); };
+             const mean = [0, 0];
+             var rho2 = rho;
+             if (rho2 == 1) {
+                 rho2 = 0.999;
+             } else if (rho2 == -1) {
+                 rho2 = -0.999;
+             }
+             const cov = [[std_x ** 2, rho2 * std_x * std_y], [rho2 * std_x * std_y, std_y ** 2]];
 
-        function updatePlots() {
-            const std_x = parseFloat(std_x_elem.value);
-            const std_y = parseFloat(std_y_elem.value);
-            const rho = parseFloat(rho_elem.value);
-            const theta = parseFloat(theta_elem.value);
+             const x_vals = numeric.linspace(-3, 3, 100);
+             const y_vals = numeric.linspace(-3, 3, 100);
 
-            const mean = [0, 0];
-            var rho2 = rho;
-            if (rho2 == 1) {
-                rho2 = 0.999;
-            } else if (rho2 == -1) {
-                rho2 = -0.999;
-            }
-            const cov = [[std_x ** 2, rho2 * std_x * std_y], [rho2 * std_x * std_y, std_y ** 2]];
+             const X = [];
+             const Y = [];
+             for (let i = 0; i < x_vals.length; i++) {
+                 for (let j = 0; j < y_vals.length; j++) {
+                     X.push([x_vals[i], y_vals[j]]);
+                 }
+             }
 
-            const x_vals = numeric.linspace(-3, 3, 100);
-            const y_vals = numeric.linspace(-3, 3, 100);
+             const inv_cov = numeric.inv(cov);
+             const det_cov = numeric.det(cov);
+             const norm_const = 1 / (2 * Math.PI * Math.sqrt(det_cov));
 
-            const X = [];
-            const Y = [];
-            for (let i = 0; i < x_vals.length; i++) {
-                for (let j = 0; j < y_vals.length; j++) {
-                    X.push([x_vals[i], y_vals[j]]);
-                }
-            }
+             const mvn_pdf = (pos, mean, inv_cov) => {
+                 const exponent = numeric.dotVV(numeric.dot(pos, inv_cov), pos);
+                 return norm_const * Math.exp(-0.5 * exponent);
+             };
 
-            const inv_cov = numeric.inv(cov);
-            const det_cov = numeric.det(cov);
-            const norm_const = 1 / (2 * Math.PI * Math.sqrt(det_cov));
+             const Z = numeric.rep([100, 100], 0);
+             for (let i = 0; i < x_vals.length; i++) {
+                 for (let j = 0; j < y_vals.length; j++) {
+                     Z[i][j] = mvn_pdf(X[i + x_vals.length * j], mean, inv_cov);
+                 }
+             }
 
-            const mvn_pdf = (pos, mean, inv_cov) => {
-                const exponent = numeric.dotVV(numeric.dot(pos, inv_cov), pos);
-                return norm_const * Math.exp(-0.5 * exponent);
-            };
+             // Define the grid with a defined grid spacing
+             const grid_opacity = 0.3
+             const grid_spacing = 0.5;
+             const grid_lines = [];
+             const grid_size = 4
+             const plot_size = 3
+             for (let x = -grid_size; x <= grid_size; x += grid_spacing) {
+                 grid_lines.push({
+                     x_start: x, y_start: -plot_size*Math.sqrt(1+Math.cos(theta)**2),
+                     x_end: x, y_end: plot_size*Math.sqrt(1+Math.cos(theta)**2),
+                     color: x === 0 ? 'orange' : 'white',
+                     width: x === 0 ? 2 : 1,
+                     opacity: x === 0 ? 1: grid_opacity
+                 });
+             }
+             for (let y = -grid_size; y <= grid_size; y += grid_spacing) {
+                 grid_lines.push({
+                     x_start: -plot_size*Math.sqrt(1+Math.sin(theta)**2), y_start: y,
+                     x_end: plot_size*Math.sqrt(1+Math.sin(theta)**2), y_end: y,
+                     color: y === 0 ? 'blue' : 'white',
+                     width: y === 0 ? 2 : 1,
+                     opacity: y === 0 ? 1: grid_opacity
+                 });
+             }
 
-            const Z = numeric.rep([100, 100], 0);
-            for (let i = 0; i < x_vals.length; i++) {
-                for (let j = 0; j < y_vals.length; j++) {
-                    Z[i][j] = mvn_pdf(X[i + x_vals.length * j], mean, inv_cov);
-                }
-            }
 
-            // Define the grid with a defined grid spacing
-            const grid_opacity = 0.3
-            const grid_spacing = 0.5;
-            const grid_lines = [];
-            const grid_size = 4
-            const plot_size = 3
-            for (let x = -grid_size; x <= grid_size; x += grid_spacing) {
-                grid_lines.push({
-                    x_start: x, y_start: -plot_size*Math.sqrt(1+Math.cos(theta)**2),
-                    x_end: x, y_end: plot_size*Math.sqrt(1+Math.cos(theta)**2),
-                    color: x === 0 ? 'orange' : 'white',
-                    width: x === 0 ? 2 : 1,
-                    opacity: x === 0 ? 1: grid_opacity
-                });
-            }
-            for (let y = -grid_size; y <= grid_size; y += grid_spacing) {
-                grid_lines.push({
-                    x_start: -plot_size*Math.sqrt(1+Math.sin(theta)**2), y_start: y,
-                    x_end: plot_size*Math.sqrt(1+Math.sin(theta)**2), y_end: y,
-                    color: y === 0 ? 'blue' : 'white',
-                    width: y === 0 ? 2 : 1,
-                    opacity: y === 0 ? 1: grid_opacity
-                });
-            }
 
-            const rotate_coord = (coord, theta) => {
-                return [
-                    coord[0] * Math.cos(theta) - coord[1] * Math.sin(theta),
-                    coord[0] * Math.sin(theta) + coord[1] * Math.cos(theta)
-                ];
-            };
+             const rotate_coord = (coord, theta) => {
+                 return [
+                     coord[0] * Math.cos(theta) - coord[1] * Math.sin(theta),
+                     coord[0] * Math.sin(theta) + coord[1] * Math.cos(theta)
+                 ];
+             };
 
-            const data_grid_lines = [];
-            for (let i = 0; i < grid_lines.length; i++) {
-                const line = grid_lines[i];
-                const start = rotate_coord([line.x_start, line.y_start], theta);
-                const end = rotate_coord([line.x_end, line.y_end], theta);
-                data_grid_lines.push({
-                    x: [start[0], end[0]],
-                    y: [start[1], end[1]],
-                    type: 'scatter',
-                    mode: 'lines',
-                    opacity: line.opacity,
-                    line: {
-                        color: line.color,
-                        width: line.width,
-                    },
-                    showlegend: false,
-                });
-            }
+             const data_grid_lines = [];
+             for (let i = 0; i < grid_lines.length; i++) {
+                 const line = grid_lines[i];
+                 const start = rotate_coord([line.x_start, line.y_start], theta);
+                 const end = rotate_coord([line.x_end, line.y_end], theta);
+                 data_grid_lines.push({
+                     x: [start[0], end[0]],
+                     y: [start[1], end[1]],
+                     type: 'scatter',
+                     mode: 'lines',
+                     opacity: line.opacity,
+                     line: {
+                         color: line.color,
+                         width: line.width,
+                     },
+                     showlegend: false,
+                 });
+             }
 
-            const data_heatmap1 = [{
-                z: Z,
-                x: x_vals,
-                y: y_vals,
-                type: 'heatmap'
-            }];
+             const data_heatmap1 = [{
+                 z: Z,
+                 x: x_vals,
+                 y: y_vals,
+                 type: 'heatmap'
+             }];
 
-            const data_heatmap2 = [{
-                z: Z,
-                x: x_vals,
-                y: y_vals,
-                type: 'heatmap'
-            }];
+             const data_heatmap2 = [{
+                 z: Z,
+                 x: x_vals,
+                 y: y_vals,
+                 type: 'heatmap'
+             }];
 
-            data_heatmap1.push(...data_grid_lines);
+             data_heatmap1.push(...data_grid_lines);
 
-            // Transform the Gaussian distribution by rotating with angle -theta for the right plot
-            const sin_theta = Math.sin(-theta);
-            const cos_theta = Math.cos(-theta);
-            const rotate_matrix = [
-                [cos_theta, sin_theta],
-                [-sin_theta, cos_theta]
-            ];
+             // Transform the Gaussian distribution by rotating with angle -theta for the right plot
+             const sin_theta = Math.sin(-theta);
+             const cos_theta = Math.cos(-theta);
+             const rotate_matrix = [
+                 [cos_theta, sin_theta],
+                 [-sin_theta, cos_theta]
+             ];
 
-            const rotate_gaussian = (x, y) => {
-                const x_rot = cos_theta * x + sin_theta * y;
-                const y_rot = -sin_theta * x + cos_theta * y;
-                return [x_rot, y_rot];
-            };
+             const rotate_gaussian = (x, y) => {
+                 const x_rot = cos_theta * x + sin_theta * y;
+                 const y_rot = -sin_theta * x + cos_theta * y;
+                 return [x_rot, y_rot];
+             };
 
-            const rotated_Z = numeric.rep([100, 100], 0);
-            const rotated_X = [];
-            for (let i = 0; i < x_vals.length; i++) {
-                for (let j = 0; j < y_vals.length; j++) {
-                    let [x_rot, y_rot] = rotate_gaussian(x_vals[i], y_vals[j]);
-                    rotated_X.push([x_rot, y_rot]);
-                }
-            }
+             const rotated_Z = numeric.rep([100, 100], 0);
+             const rotated_X = [];
+             for (let i = 0; i < x_vals.length; i++) {
+                 for (let j = 0; j < y_vals.length; j++) {
+                     let [x_rot, y_rot] = rotate_gaussian(x_vals[i], y_vals[j]);
+                     rotated_X.push([x_rot, y_rot]);
+                 }
+             }
 
-            for (let i = 0; i < x_vals.length; i++) {
-                for (let j = 0; j < y_vals.length; j++) {
-                    rotated_Z[i][j] = mvn_pdf(rotated_X[i + x_vals.length * j], mean, inv_cov);
-                }
-            }
+             for (let i = 0; i < x_vals.length; i++) {
+                 for (let j = 0; j < y_vals.length; j++) {
+                     rotated_Z[i][j] = mvn_pdf(rotated_X[i + x_vals.length * j], mean, inv_cov);
+                 }
+             }
 
-            const data_rotated_heatmap2 = [{
-                z: rotated_Z,
-                x: x_vals,
-                y: y_vals,
-                type: 'heatmap'
-            }];
+             const data_rotated_heatmap2 = [{
+                 z: rotated_Z,
+                 x: x_vals,
+                 y: y_vals,
+                 type: 'heatmap'
+             }];
 
-            const layout1 = {
-                title: { text: 'Original density with grid at angle θ', x: 0.5, pad: { t: 20 } },
-                margin: { l: 40, r: 40, b: 40, t: 80 },
-                xaxis: { range: [-3, 3], scaleanchor: 'y', scaleratio: 1 },
-                yaxis: { range: [-3, 3], scaleanchor: 'x', scaleratio: 1 },
-                autosize: true,
-                responsive: true,
-                useResizeHandler: true,
-                uirevision: true,
-            };
+             theta_deg = theta/Math.PI*180;
 
-            const layout2 = {
-                title: { text: 'Density rotated by -θ', x: 0.5, pad: { t: 20 } },
-                margin: { l: 40, r: 40, b: 40, t: 80 },
-                xaxis: { range: [-3, 3], scaleanchor: 'y', scaleratio: 1 },
-                yaxis: { range: [-3, 3], scaleanchor: 'x', scaleratio: 1 },
-                autosize: true,
-                responsive: true,
-                useResizeHandler: true,
-                uirevision: true,
-            };
+             const layout1 = {
+                 title: { text: 'Original density with grid at angle ' + theta_deg.toFixed(0) + '&deg;',
+                          x: 0.5, pad: { t: 20 } },
+                 margin: { l: 40, r: 40, b: 40, t: 80 },
+                 xaxis: { fixedrange: true, range: [-3, 3], scaleanchor: 'y', scaleratio: 1 },
+                 yaxis: { fixedrange: true, range: [-3, 3], scaleanchor: 'x', scaleratio: 1 },
+                 autosize: true,
+                 responsive: true,
+                 dragmode: isDragging ? false : 'zoom',
+                 useResizeHandler: true,
+                 uirevision: true,
+             };
 
-            Plotly.react('plot_heatmap1', data_heatmap1, layout1);
-            Plotly.react('plot_heatmap2', data_rotated_heatmap2, layout2);
-        }
+             const layout2 = {
+                 title: { text: 'Density rotated by '  + (-theta_deg).toFixed(0) + '&deg;', x: 0.5, pad: { t: 20 } },
+                 margin: { l: 40, r: 40, b: 40, t: 80 },
+                 xaxis: { fixedrange: true, range: [-3, 3], scaleanchor: 'y', scaleratio: 1 },
+                 yaxis: { fixedrange: true, range: [-3, 3], scaleanchor: 'x', scaleratio: 1 },
+                 autosize: true,
+                 responsive: true,
+                 useResizeHandler: true,
+                 uirevision: true,
+             };
 
-        window.onload = updatePlots;
-    </script>
-</body>
+             Plotly.react('plot_heatmap1', data_heatmap1, layout1);
+             Plotly.react('plot_heatmap2', data_rotated_heatmap2, layout2);
+         }
+
+         function onMouseMove(event) {
+             if (!isDragging) {
+                 return;
+             }
+
+             const deltaX = event.clientX - startClientX;
+             const angleChange = deltaX * 0.01; // Change this value to control sensitivity (smaller = slower)
+             theta += angleChange;
+             if (theta > 180) {
+                 theta = theta - 360;
+             } else if (theta <= -180) {
+                 theta = theta + 360;
+             }
+
+             startClientX = event.clientX;
+
+             updatePlots();
+         }
+
+         function onMouseDown(event) {
+             isDragging = true;
+             startClientX = event.clientX;
+             document.addEventListener('mousemove', onMouseMove);
+             Plotly.relayout('plot_heatmap1', { dragmode: false }); // Disable plotly drag mode
+         }
+
+         function onMouseUp() {
+             isDragging = false;
+             document.removeEventListener('mousemove', onMouseMove);
+             Plotly.relayout('plot_heatmap1', { dragmode: 'zoom' }); // Enable plotly drag mode
+         }
+
+         document.getElementById('plot_heatmap1').addEventListener('mousedown', onMouseDown);
+         document.addEventListener('mouseup', onMouseUp);
+
+         window.onload = updatePlots;
+        </script>
+    </body>
 </html>
